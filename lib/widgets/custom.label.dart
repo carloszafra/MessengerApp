@@ -14,6 +14,7 @@ class Labels extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // margin: EdgeInsets.only(bottom: 10),
       child: Column(
         children: [
           Text(this.text1,

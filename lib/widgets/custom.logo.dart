@@ -9,8 +9,8 @@ class Logo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        margin: EdgeInsets.only(top: 30),
-        width: 150,
+        margin: EdgeInsets.only(top: 20),
+        width: 200,
         child: Column(
           children: <Widget>[
             Image(
