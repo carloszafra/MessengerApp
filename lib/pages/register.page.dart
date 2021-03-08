@@ -1,9 +1,13 @@
+import 'package:ChatApp/helpers/show.alert.dart';
+import 'package:ChatApp/services/auth.service.dart';
+import 'package:ChatApp/services/socket.service.dart';
 import 'package:ChatApp/widgets/custom.button.dart';
 import 'package:ChatApp/widgets/custom.input.dart';
 import 'package:ChatApp/widgets/custom.label.dart';
 import 'package:ChatApp/widgets/custom.logo.dart';
 import 'package:ChatApp/widgets/custom.terms.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatelessWidget {
   @override
@@ -41,9 +45,12 @@ class _Form extends StatefulWidget {
 class _FormState extends State<_Form> {
   final emailCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
-  final confirmPassword = TextEditingController();
+  final nameCtrl = TextEditingController();
 
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 10),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -63,17 +70,27 @@ class _FormState extends State<_Form> {
           ),
           CustomInput(
             data: Icons.lock_outlined,
-            placeholder: "Confirm password",
-            textCont: this.confirmPassword,
-            isPassword: true,
+            placeholder: "name",
+            textCont: this.nameCtrl,
           ),
           CustomButton(
               text: "Sign up",
-              onPressed: () {
-                print(emailCtrl.text);
-                print(this.passwordCtrl.text);
-                print(this.confirmPassword.text);
-              })
+              onPressed: authService.authenticating
+                  ? null
+                  : () async {
+                      FocusScope.of(context).unfocus();
+
+                      var isOk = await authService.register(
+                          nameCtrl.text.trim(),
+                          emailCtrl.text.trim(),
+                          passwordCtrl.text.trim());
+                      if (isOk) {
+                        socketService.connect();
+                        Navigator.pushReplacementNamed(context, "users");
+                      } else {
+                        showAlert(context, "Error", "Email is already in use");
+                      }
+                    })
         ],
       ),
     );

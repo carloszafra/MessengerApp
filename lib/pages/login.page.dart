@@ -1,9 +1,13 @@
+import 'package:ChatApp/helpers/show.alert.dart';
+import 'package:ChatApp/services/auth.service.dart';
+import 'package:ChatApp/services/socket.service.dart';
 import 'package:ChatApp/widgets/custom.button.dart';
 import 'package:ChatApp/widgets/custom.label.dart';
 import 'package:ChatApp/widgets/custom.logo.dart';
 import 'package:ChatApp/widgets/custom.terms.dart';
 import 'package:flutter/material.dart';
 import 'package:ChatApp/widgets/custom.input.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -45,6 +49,9 @@ class _FormState extends State<_Form> {
   final passwordCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 30),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -64,10 +71,21 @@ class _FormState extends State<_Form> {
           ),
           CustomButton(
             text: "Log in",
-            onPressed: () {
-              print(this.emailCtrl.text);
-              print(this.passwordCtrl.text);
-            },
+            onPressed: (authService.authenticating)
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    final isOk = await authService.login(
+                        emailCtrl.text.trim(), passwordCtrl.text.trim());
+
+                    if (isOk) {
+                      socketService.connect();
+                      Navigator.pushReplacementNamed(context, "users");
+                    } else {
+                      showAlert(
+                          context, "Error", "Password or email are invalid");
+                    }
+                  },
           )
         ],
       ),

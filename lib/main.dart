@@ -1,16 +1,27 @@
 import 'package:ChatApp/routes/routes.dart';
+import 'package:ChatApp/services/auth.service.dart';
+import 'package:ChatApp/services/chat.service.dart';
+import 'package:ChatApp/services/socket.service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Chat App",
-      initialRoute: "chat",
-      routes: appRoutes,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => SocketService()),
+        ChangeNotifierProvider(create: (_) => ChatService()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: "Chat App",
+        initialRoute: "loading",
+        routes: appRoutes,
+      ),
     );
   }
 }
